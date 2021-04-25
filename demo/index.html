@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- 如旧浏览器不支持shadowDOM, 使用以下polyfill -->
+    <!-- <script src="./webcomponents-bundle.js"></script> -->
+    <script type="module" src="../dist/index.js"></script>
+    <title>【表格】</title>
+    <style>
+      html,
+      body {
+        padding: 0;
+        margin: 0;
+        background-color: #eee;
+      }
+      .card {
+        position: relative;
+        border: 1px solid #aaa;
+        margin: 40px 0 0 20px;
+        width: 1040px;
+        height: 400px;
+        overflow: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <spread-sheet></spread-sheet>
+    </div>
+    <script>
+      var columns = [
+        {
+          text: '出行人员姓名',
+          key: 'name',
+          type: 'input',
+          width: '7em',
+          props: {
+            maxlength: 10
+          },
+          params: {
+            validator: (value, row) => {
+              const name = (value || '').trim();
+              if (!name) return '请输入姓名';
+              if (name.length > 10) return '姓名长度应小于等于10';
+            }
+          }
+        },
+        {
+          text: '所属部门',
+          key: 'dept',
+          type: 'select',
+          width: '5em',
+          items: [
+            { label: '运营部', value: 'OP' },
+            { label: 'IT部', value: 'IT' }
+          ]
+        },
+        {
+          text: '证件类型',
+          key: 'idType',
+          type: 'select',
+          width: '6em',
+          items: [
+            { label: '身份证', value: 'ID' },
+            { label: '护照', value: 'PASSPORT' }
+          ]
+        },
+        {
+          text: '证件号码',
+          key: 'idNumber',
+          type: 'input',
+          width: '11em',
+          props: {
+            maxlength: 18
+          }
+        },
+        {
+          text: '报名费',
+          key: 'fee',
+          align: 'right',
+          type: 'input',
+          width: '5em',
+          props: {
+            maxlength: 6
+          },
+          params: {
+            validator: str => {
+              if (!str) return;
+              const num = +str;
+              if (Number.isNaN(num)) return '请输入数字';
+            },
+            formatter: str => {
+              const num = +str;
+              return num.toFixed(2);
+            }
+          }
+        },
+        {
+          text: '总费用(含工本费)',
+          key: 'totalFee',
+          align: 'right',
+          type: 'input',
+          width: '9.5em',
+          props: {
+            maxlength: 6
+          },
+          params: {
+            validator: str => {
+              if (!str) return;
+              const num = +str;
+              if (Number.isNaN(num)) return '请输入数字';
+            },
+            formatter: str => {
+              const num = +str;
+              return num.toFixed(2);
+            },
+            computed: (row, column) => {
+              const num = +row.fee || 0;
+              const imgLength = (row.pics || []).length;
+              return (num + imgLength).toFixed(2);
+            }
+          }
+        },
+        {
+          text: '照片',
+          key: 'pics',
+          type: 'image',
+          width: '8.5em',
+          props: {
+            max: 3,
+            uploadApi: 'http://192.168.105.11:28080/api/file/common/upload1'
+          }
+        },
+        {
+          text: '最近修改时间',
+          key: 'updateTime',
+          type: 'date',
+          width: '8em'
+        }
+      ];
+      var data = [
+        {
+          name: '张三',
+          dept: 'OP',
+          idType: 'ID',
+          idNumber: '12341122234',
+          fee: 33,
+          pics: [
+            'https://github.blog/wp-content/uploads/2019/03/product-social.png?fit=1201%2C630',
+            '//fpoimg.com/400x400?text=Preview&bg_color=000000',
+            '//fpoimg.com/400x400?text=Preview&bg_color=ffeeee'
+          ],
+          updateTime: '2020-02-01'
+        },
+        {
+          name: '李四',
+          dept: 'IT',
+          idType: 'ID',
+          idNumber: '987699967876',
+          fee: 51,
+          pics: ['//fpoimg.com/400x400?text=Preview&bg_color=eeffee'],
+          updateTime: '2020-02-01'
+        },
+        {
+          name: '王五',
+          dept: 'OP',
+          idType: 'ID',
+          idNumber: '332314412',
+          fee: 128,
+          pics: ['//fpoimg.com/400x400?text=Preview&bg_color=eeeeff', '//fpoimg.com/400x400?text=Preview&bg_color=ffffee'],
+          updateTime: '2020-02-02'
+        },
+        {
+          name: '赵六',
+          dept: 'IT',
+          idType: 'ID',
+          idNumber: '8255478223',
+          fee: 0,
+          pics: [],
+          updateTime: '2020-02-02'
+        }
+      ];
+      while (data.length < 30) {
+        data = [...data, ...data];
+      }
+      data = JSON.parse(JSON.stringify(data));
+      window.onload = function () {
+        var comp = document.querySelector('spread-sheet');
+        comp.columns = columns;
+        comp.data = data;
+        window.addEventListener('changed', e => {
+          console.log(e.detail);
+          // console.log(e.detail[0].totalFee);
+        });
+      };
+    </script>
+  </body>
+</html>
