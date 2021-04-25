@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- 如旧浏览器不支持shadowDOM, 使用以下polyfill -->
-    <script src="https://unpkg.com/@webcomponents/webcomponentsjs@^2/"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@webcomponents/webcomponentsjs@2.5.0/webcomponents-bundle.min.js"></script>
     <script type="module" src="./lib/index.js"></script>
     <link
       rel="stylesheet"
@@ -79,6 +79,7 @@
         padding: 0;
         margin: 0;
         background-color: #fefbec;
+        overflow: hidden;
       }
       h1 {
         font-size: 30px;
@@ -97,40 +98,44 @@
       .card {
         position: relative;
         border: 1px solid #aaa;
-        margin: 0 0 0 40px;
+        margin: 0 0 0 30px;
         width: 1255px;
         height: 345px;
         overflow: auto;
       }
       .wrap {
         position: relative;
-        height: calc(100vh - 455px);
+        display: flex;
+        height: calc(100vh - 435px);
         margin-top: 10px;
       }
       .wrap > * {
         width: 50%;
         height: 100%;
-        float: left;
         white-space: nowrap;
         position: relative;
       }
-      pre {
+      .wrap pre {
+        width: 48%;
         height: 100%;
         box-sizing: border-box;
-        margin: 0;
-        padding: 0 10px 0 40px;
+        margin: 0 20px 0 30px;
+        padding: 0;
+        overflow: auto;
+        border: 1px solid #ddd;
       }
       code {
-        height: 100%;
+        /* height: 100%; */
         box-sizing: border-box;
         white-space: pre;
         margin: 0;
         padding: 0;
-        border: 1px solid #ddd;
+        
       }
       .usage {
         box-sizing: border-box;
         border: 1px solid #ddd;
+        margin-right: 30px;
         padding: 10px;
       }
       h2 {
@@ -140,7 +145,7 @@
   </head>
   <body>
     <h1>
-      <span>web-spreadsheet document</span>
+      <span>web-spreadsheet documentation</span>
       <a href="https://github.com/icheer/web-spreadsheet" target="_blank">Github</a>
     </h1>
     <div class="card">
@@ -327,7 +332,6 @@ window.onload = function () {
     <script>
       (function () {
         var code = document.querySelector('script.real-code').outerHTML.replace(' class="real-code"', '');
-        console.log(code);
         document.querySelector('pre code').innerText = code;
         hljs.highlightAll();
       })();

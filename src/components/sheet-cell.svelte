@@ -174,9 +174,7 @@ svelte:options(immutable tag="sheet-cell")
     row[key] = value;
     const shouldRefreshRow = !!row._errorMsg[key] !== !!message;
     row._errorMsg[key] = message;
-    if (shouldRefreshRow) {
-      row._id = genRandId();
-    }
+    row._id = genRandId();
     row = { ...row };
     setTimeout(() => {
       isRewriting = false;
