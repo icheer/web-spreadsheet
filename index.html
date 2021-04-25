@@ -88,6 +88,12 @@
         color: #333;
         text-align: center;
       }
+      h1 a {
+        position: absolute;
+        right: 20px;
+        top: 0;
+        font-size: 22px;
+      }
       .card {
         position: relative;
         border: 1px solid #aaa;
@@ -133,7 +139,10 @@
     </style>
   </head>
   <body>
-    <h1>web-spreadsheet document</h1>
+    <h1>
+      <span>web-spreadsheet document</span>
+      <a href="https://github.com/icheer/web-spreadsheet" target="_blank">Github</a>
+    </h1>
     <div class="card">
       <spread-sheet></spread-sheet>
     </div>
