@@ -101,7 +101,7 @@ svelte:options(immutable tag="sheet-cell")
       : column.align === 'center'
       ? 't-center'
       : 't-left';
-  $: disabled = column.disabled || props.disabled || params.computed;
+  $: disabled = column.disabled || props.disabled || !!params.computed;
   $: selectItems = column.items || props.items || [];
   $: rowIndex = +id.split('.')[0];
   $: colIndex = +id.split('.')[1];
@@ -170,10 +170,13 @@ svelte:options(immutable tag="sheet-cell")
     if (disabled) return;
     const { valid, message = '' } = validate();
     value = valueInner || '';
-    row._errorMsg[column.key] = message;
-    row._errorMsg = { ...row._errorMsg };
-    row[column.key] = value;
-    row._id = genRandId();
+    const key = column.key;
+    row[key] = value;
+    const shouldRefreshRow = !!row._errorMsg[key] !== !!message;
+    row._errorMsg[key] = message;
+    if (shouldRefreshRow) {
+      row._id = genRandId();
+    }
     row = { ...row };
     setTimeout(() => {
       isRewriting = false;
@@ -213,6 +216,7 @@ svelte:options(immutable tag="sheet-cell")
     if (!isActive) {
       updateRowColIndex(rowIndex, colIndex);
     } else {
+      if (disabled) return;
       isFocused = true;
       focusInnerDom();
     }
@@ -220,14 +224,12 @@ svelte:options(immutable tag="sheet-cell")
 
   // 聚焦单元格内部的input等元素
   async function focusInnerDom() {
+    if (disabled) return;
     if (!isFocused) isFocused = true;
     await tick();
     if (inputDom) {
       return inputDom.focus();
     }
-    // if (selectDom) {
-    //   selectDom.focus();
-    // }
   }
 
   // 向单元格内输入字符

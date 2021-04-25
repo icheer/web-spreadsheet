@@ -47,9 +47,9 @@
     pushHistoryAndEmitEvent
   } from '@/store/store';
   import { dispatchEvent } from '@/helper/func';
-  import SheetCell from '_/sheet-cell.svelte';
-  import ContextMenu from '_/context-menu.svelte';
-  import ImagePreview from '_/image-preview.svelte';
+  import '_/sheet-cell.svelte';
+  import '_/context-menu.svelte';
+  import '_/image-preview.svelte';
 
   export let columns = [];
   export let data = [];

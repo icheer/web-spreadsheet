@@ -1,8 +1,10 @@
 {
-  "name": "sveltecomponent",
+  "name": "web-spreadsheet",
   "svelte": "src/index.js",
+  "main": "lib/index.js",
   "module": "dist/index.mjs",
-  "main": "dist/index.js",
+  "unpkg": "lib/index.js",
+  "jsdelivr": "lib/index.js",
   "scripts": {
     "build": "rollup -c",
     "prepublishOnly": "npm run build"
@@ -19,6 +21,10 @@
     "svelte": "^3.0.0",
     "svelte-preprocess": "^4.6.9"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/icheer/web-spreadsheet.git"
+  },
   "keywords": [
     "svelte"
   ],
@@ -26,11 +32,8 @@
     "src",
     "dist"
   ],
-  "description": "*Psst — looking for an app template? Go here --> [sveltejs/template](https://github.com/sveltejs/template)*",
-  "version": "1.0.0",
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "axios": "^0.21.1"
-  }
+  "description": "A simple excel-like spreadsheet web component.",
+  "version": "1.0.6",
+  "author": "icheer@live.com",
+  "license": "ISC"
 }
