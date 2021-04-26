@@ -7,13 +7,14 @@ svelte:options(tag="context-menu")
       .line.item(on:click!="{() => insertRow(config.rowIndex)}") { isCn ? `插入行` : `Insert line` }
       +if("0")
         .line.item(on:click!="{() => emptyRow(config.rowIndex)}") { isCn ? `清空行` : `Empty line` }
-      .line.item.danger(on:click!="{() => deleteRow(config.rowIndex)}") { isCn ? `删除行` : `Delete line` }
+      +if("canDeleteRow")
+        .line.item.danger(on:click!="{() => deleteRow(config.rowIndex)}") { isCn ? `删除行` : `Delete line` }
     +if("colNum")
       .line.title 第{ colNum }列
 </template>
 
 <script>
-  import { contextMenuConfig, closeContextMenu, deleteRow, emptyRow, insertRow } from '@/store/store';
+  import { contextMenuConfig, closeContextMenu, deleteRow, emptyRow, insertRow, maxRowIndex } from '@/store/store';
   $: config = $contextMenuConfig;
   $: show = config.show || false;
   $: x = config.x || 0;
@@ -21,6 +22,7 @@ svelte:options(tag="context-menu")
   $: colNum = config.colIndex === undefined ? undefined : config.colIndex + 1;
   $: rowNum = config.rowIndex === undefined ? undefined : config.rowIndex + 1;
   $: style = `top: ${y}px; left: ${x}px;`;
+  $: canDeleteRow = $maxRowIndex > 0;
   $: lang = document.querySelector('html').getAttribute('lang') || '';
   $: isCn = /zh-/i.test(lang);
 

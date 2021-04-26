@@ -195,6 +195,7 @@ If you want to use it in pure javascript, you can refer the [demo page](https://
 - upload images and preview images
 - auto switch languages(CN or EN) depends on your `<html lang="___">`
 - pasted letters by ctrl+V will fill current highlighted input cell
+- for those non-modern browsers which don't support shadowDOM or customElement, you can use polyfill to let them support: just add a `<script src="https://cdn.jsdelivr.net/npm/@webcomponents/webcomponentsjs@2.5.0/webcomponents-bundle.min.js"></script>` in `<head>`
 
 ## TODO
 - [ ] column actions such as insert/delete column

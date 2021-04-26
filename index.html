@@ -118,7 +118,7 @@
         white-space: nowrap;
         position: relative;
       }
-      .wrap pre {
+      .wrap pre.main {
         width: 48%;
         height: 100%;
         box-sizing: border-box;
@@ -127,7 +127,7 @@
         overflow: auto;
         border: 1px solid #ddd;
       }
-      code {
+      pre.main code {
         /* height: 100%; */
         box-sizing: border-box;
         white-space: pre;
@@ -136,13 +136,20 @@
         
       }
       .usage {
+        position: relative;
         box-sizing: border-box;
         border: 1px solid #ddd;
         margin-right: 30px;
         padding: 10px;
+        overflow-y: auto;
+        overflow-x: hidden;
       }
-      h2 {
+      p, h2, li {
+        width: 100%;
         margin: 0.5em 0;
+        white-space: normal;
+        word-break: break-all;
+        word-wrap: break-word;
       }
     </style>
   </head>
@@ -155,186 +162,227 @@
       <spread-sheet></spread-sheet>
     </div>
     <div class="wrap">
-      <pre>
+      <pre class="main">
         <code class="language-js"></code>
       </pre>
       <div class="usage">
-        <h2>TODO: ...</h2>
+        <h2>Intro</h2>
+        <p>A simple Excel-like spreadsheet web component built with svelte.</p>
+        <ul>
+          <li>dependency free</li>
+          <li>compatible with any javascript framework/UI library</li>
+          <li>light-weighted (size: 35KB, gzip: ~12KB)</li>
+          <li>multiple cell type supported (input, select, multi-select, image, date, time)</li>
+          <li>support customized validator, formatter and computed function</li>
+          <li>support UNDO/REDO with ctrl+Z & ctrl+Y</li>
+        </ul>
+        <h2>How to use</h2>
+        <p>Install with npm:</p>
+        <pre>
+          <code class="shell">npm install web-spreadsheet --save</code>
+        </pre>
+        <p>and import it in your code:</p>
+        <pre>
+          <code class="language-js">import 'web-spreadsheet';</code>
+        </pre>
+        <p>You can also load the code from a CDN such as jsdelivr:</p>
+        <pre>
+          <code class="language-js">&lt;script src="https://cdn.jsdelivr.net/npm/web-spreadsheet@latest/lib/index.min.js"&gt;&lt;/script&gt;</code>
+        </pre>
+        <p>then you can use the customElement &lt;spread-sheet /&gt; in your HTML code.</p> 
+        <p>If you're using it in a Vue.js project, you can pass proper props columns and data into customElement such as &lt;spread-sheet :columns="columns" :data="rows"/&gt; Then your spreadsheet will come into view.</p>  
+        <p>The columns and data props look like the code on the left←</p>
+        <h2>FEATURES</h2>
+        <ul>
+          <li>cell type: input, select, multi-select, image, date, time (depends on columns array)</li>
+          <li>when the row data changed, it will automaticly emit a "change" event, so you can handle the newest row data</li>
+          <li>validator / formatter / computed functions can be added in column.params object</li>
+          <li>log at most 20 change history in memory, so you can press ctrl+Z/Y to UNDO/REDO</li>
+          <li>right clicking the row head can call the context menu which can insert/delete the row</li>
+          <li>upload images and preview images</li>
+          <li>auto switch languages(CN or EN) depends on your &lt;html lang="___"&gt;&lt;/html&gt;</li>
+          <li>pasted letters by ctrl+V will fill current highlighted input cell</li>
+          <li>for those non-modern browsers which don't support shadowDOM or customElement, you can use polyfill to let them support: just add a &lt;script src="https://cdn.jsdelivr.net/npm/@webcomponents/webcomponentsjs@2.5.0/webcomponents-bundle.min.js"&gt;&lt;/script&gt; in &lt;head&gt;</li>
+        </ul>
+        <h2>TODO</h2>
+        <ul>
+          <li>column actions such as insert/delete column</li>
+          <li>...</li>
+        </ul>
       </div>
     </div>
 <script class="real-code">
-var columns = [
-  {
-    text: '出行人员姓名',
-    key: 'name',
-    type: 'input',
-    width: '7em',
-    props: {
-      maxlength: 10
-    },
-    params: {
-      validator: (value, row) => {
-        const name = (value || '').trim();
-        if (!name) return '请输入姓名';
-        if (name.length > 10) return '姓名长度应小于等于10';
-      }
-    }
-  },
-  {
-    text: '所属部门',
-    key: 'dept',
-    type: 'select',
-    width: '5em',
-    items: [
-      { label: '运营部', value: 'OP' },
-      { label: 'IT部', value: 'IT' }
-    ]
-  },
-  {
-    text: '证件类型',
-    key: 'idType',
-    type: 'select',
-    width: '6em',
-    items: [
-      { label: '身份证', value: 'ID' },
-      { label: '护照', value: 'PASSPORT' }
-    ]
-  },
-  {
-    text: '证件号码',
-    key: 'idNumber',
-    type: 'input',
-    width: '8.5em',
-    props: {
-      maxlength: 18
-    }
-  },
-  {
-    text: '报名费',
-    key: 'fee',
-    align: 'right',
-    type: 'input',
-    width: '5em',
-    props: {
-      maxlength: 6
-    },
-    params: {
-      validator: str => {
-        if (!str) return;
-        const num = +str;
-        if (Number.isNaN(num)) return '请输入数字';
+  let columns = [
+    {
+      text: '出行人员姓名',
+      key: 'name',
+      type: 'input',
+      width: '7em',
+      props: {
+        maxlength: 10
       },
-      formatter: str => {
-        const num = +str;
-        return num.toFixed(2);
+      params: {
+        validator: (value, row) => {
+          const name = (value || '').trim();
+          if (!name) return '请输入姓名';
+          if (name.length > 10) return '姓名长度应小于等于10';
+        }
       }
-    }
-  },
-  {
-    text: '总费用(含工本费)',
-    key: 'totalFee',
-    align: 'right',
-    type: 'input',
-    width: '9em',
-    props: {
-      maxlength: 6
     },
-    params: {
-      validator: str => {
-        if (!str) return;
-        const num = +str;
-        if (Number.isNaN(num)) return '请输入数字';
-      },
-      formatter: str => {
-        const num = +str;
-        return num.toFixed(2);
-      },
-      computed: (row, column) => {
-        const num = +row.fee || 0;
-        const imgLength = (row.pics || []).length;
-        return (num + imgLength).toFixed(2);
+    {
+      text: '所属部门',
+      key: 'dept',
+      type: 'select',
+      width: '5em',
+      items: [
+        { label: '运营部', value: 'OP' },
+        { label: 'IT部', value: 'IT' }
+      ]
+    },
+    {
+      text: '证件类型',
+      key: 'idType',
+      type: 'select',
+      width: '6em',
+      items: [
+        { label: '身份证', value: 'ID' },
+        { label: '护照', value: 'PASSPORT' }
+      ]
+    },
+    {
+      text: '证件号码',
+      key: 'idNumber',
+      type: 'input',
+      width: '8.5em',
+      props: {
+        maxlength: 18
       }
+    },
+    {
+      text: '报名费',
+      key: 'fee',
+      align: 'right',
+      type: 'input',
+      width: '5em',
+      props: {
+        maxlength: 6
+      },
+      params: {
+        validator: str => {
+          if (!str) return;
+          const num = +str;
+          if (Number.isNaN(num)) return '请输入数字';
+        },
+        formatter: str => {
+          const num = +str;
+          return num.toFixed(2);
+        }
+      }
+    },
+    {
+      text: '总费用(含工本费)',
+      key: 'totalFee',
+      align: 'right',
+      type: 'input',
+      width: '9em',
+      props: {
+        maxlength: 6
+      },
+      params: {
+        validator: str => {
+          if (!str) return;
+          const num = +str;
+          if (Number.isNaN(num)) return '请输入数字';
+        },
+        formatter: str => {
+          const num = +str;
+          return num.toFixed(2);
+        },
+        computed: (row, column) => {
+          const num = +row.fee || 0;
+          const imgLength = (row.pics || []).length;
+          return (num + imgLength).toFixed(2);
+        }
+      }
+    },
+    {
+      text: '照片',
+      key: 'pics',
+      type: 'image',
+      width: '8.5em',
+      props: {
+        max: 3,
+        uploadApi: 'http://192.168.105.11:28080/api/file/common/upload1'
+      }
+    },
+    {
+      text: '最近修改时间',
+      key: 'updateTime',
+      type: 'date',
+      width: '8em'
     }
-  },
-  {
-    text: '照片',
-    key: 'pics',
-    type: 'image',
-    width: '8.5em',
-    props: {
-      max: 3,
-      uploadApi: 'http://192.168.105.11:28080/api/file/common/upload1'
+  ];
+  let data = [
+    {
+      name: '张三',
+      dept: 'OP',
+      idType: 'ID',
+      idNumber: '12341122234',
+      fee: 33,
+      pics: [
+        'https://github.blog/wp-content/uploads/2019/03/product-social.png?fit=1201%2C630',
+        '//fpoimg.com/400x400?text=Preview&bg_color=000000',
+        '//fpoimg.com/400x400?text=Preview&bg_color=ffeeee'
+      ],
+      updateTime: '2020-02-01'
+    },
+    {
+      name: '李四',
+      dept: 'IT',
+      idType: 'ID',
+      idNumber: '987699967876',
+      fee: 51,
+      pics: ['//fpoimg.com/400x400?text=Preview&bg_color=eeffee'],
+      updateTime: '2020-02-01'
+    },
+    {
+      name: '王五',
+      dept: 'OP',
+      idType: 'PASSPORT',
+      idNumber: '332314412',
+      fee: 128,
+      pics: [
+        '//fpoimg.com/400x400?text=Preview&bg_color=eeeeff',
+        '//fpoimg.com/400x400?text=Preview&bg_color=ffffee'
+      ],
+      updateTime: '2020-02-02'
+    },
+    {
+      name: '赵六',
+      dept: 'IT',
+      idType: 'ID',
+      idNumber: '8255478223',
+      fee: 0,
+      pics: [],
+      updateTime: '2020-02-02'
     }
-  },
-  {
-    text: '最近修改时间',
-    key: 'updateTime',
-    type: 'date',
-    width: '8em'
+  ];
+  while (data.length < 30) {
+    data.push(...JSON.parse(JSON.stringify(data))); // copy some rows
   }
-];
-var data = [
-  {
-    name: '张三',
-    dept: 'OP',
-    idType: 'ID',
-    idNumber: '12341122234',
-    fee: 33,
-    pics: [
-      'https://github.blog/wp-content/uploads/2019/03/product-social.png?fit=1201%2C630',
-      '//fpoimg.com/400x400?text=Preview&bg_color=000000',
-      '//fpoimg.com/400x400?text=Preview&bg_color=ffeeee'
-    ],
-    updateTime: '2020-02-01'
-  },
-  {
-    name: '李四',
-    dept: 'IT',
-    idType: 'ID',
-    idNumber: '987699967876',
-    fee: 51,
-    pics: ['//fpoimg.com/400x400?text=Preview&bg_color=eeffee'],
-    updateTime: '2020-02-01'
-  },
-  {
-    name: '王五',
-    dept: 'OP',
-    idType: 'PASSPORT',
-    idNumber: '332314412',
-    fee: 128,
-    pics: [
-      '//fpoimg.com/400x400?text=Preview&bg_color=eeeeff',
-      '//fpoimg.com/400x400?text=Preview&bg_color=ffffee'
-    ],
-    updateTime: '2020-02-02'
-  },
-  {
-    name: '赵六',
-    dept: 'IT',
-    idType: 'ID',
-    idNumber: '8255478223',
-    fee: 0,
-    pics: [],
-    updateTime: '2020-02-02'
-  }
-];
-while (data.length < 30) {
-  data = [...data, ...data];
-}
-data = JSON.parse(JSON.stringify(data));
-window.onload = function () {
-  var comp = document.querySelector('spread-sheet');
-  comp.columns = columns;
-  comp.data = data;
-  window.addEventListener('change', e => {
-    console.log(e.detail);
-  });
-};
+  window.onload = function () {
+    let comp = document.querySelector('spread-sheet');
+    comp.columns = columns;
+    comp.data = data;
+    window.addEventListener('change', e => {
+      console.log(e.detail);
+    });
+  };
 </script>
     <script>
       (function () {
         var code = document.querySelector('script.real-code').outerHTML.replace(' class="real-code"', '');
-        document.querySelector('pre code').innerText = code;
+        document.querySelector('pre.main code').innerText = code;
         hljs.highlightAll();
       })();
     </script>
