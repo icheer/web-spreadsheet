@@ -1,35 +1,201 @@
-*Psst — looking for an app template? Go here --> [sveltejs/template](https://github.com/sveltejs/template)*
+# web-spreadsheet
 
----
+A simple Excel-like spreadsheet web component built with [svelte](https://github.com/sveltejs/svelte).
 
-# component-template
+- dependency free
+- compatible with any javascript framework/UI library
+- light-weighted (size: 35KB, gzip: ~12KB)
+- multiple cell type supported (input, select, multi-select, image, date, time)
+- support customized **validator**, **formatter** and **computed** function
+- support UNDO/REDO with ctrl+Z & ctrl+Y
 
-A base for building shareable Svelte components. Clone it with [degit](https://github.com/Rich-Harris/degit):
+## Online demo
+
+[https://spread.vercel.app](https://spread.vercel.app)
+
+![screenshot](https://i.ibb.co/FJrhmc4/spread-shot.png)
+
+## How to use
+
+Install with npm:
 
 ```bash
-npx degit sveltejs/component-template my-new-component
-cd my-new-component
-npm install # or yarn
+npm install web-spreadsheet --save
 ```
 
-Your component's source code lives in `src/Component.svelte`.
+and import it in your code:
 
-You can create a package that exports multiple components by adding them to the `src` directory and editing `src/index.js` to reexport them as named exports.
+```js
+import 'web-spreadsheet';
+```
 
-TODO
+You can **also** load the code from a CDN such as jsdelivr:
 
-* [ ] some firm opinions about the best way to test components
-* [ ] update `degit` so that it automates some of the setup work
+```js
+<script src="https://cdn.jsdelivr.net/npm/web-spreadsheet@latest/lib/index.min.js"></script>
+```
 
+then you can use the customElement `<spread-sheet></spread-sheet>` in your HTML code.
 
-## Setting up
+If you're using it in a Vue.js project, you can pass proper props **columns** and **data** into customElement such as `<spread-sheet :columns="columns" :data="rows"/>`
+Then your spreadsheet will come into view.
 
-* Run `npm init` (or `yarn init`)
-* Replace this README with your own
+The **columns** and **data** props look like these:
 
+```js
+data() {
+  return {
+    columns: [
+      {
+        text: 'Fullname',
+        key: 'fullname',
+        type: 'input',
+        width: '200px',
+        props: {
+          maxlength: 25
+        },
+        params: {
+          validator: (value, row) => {
+            const name = (value || '').trim();
+            if (!name) return 'Please enter Fullname';
+            if (name.length > 25) return 'Fullname length should less than 25';
+          }
+        }
+      },
+      {
+        text: 'Department',
+        key: 'dept',
+        type: 'select',
+        width: '8em',
+        items: [
+          { label: 'Operation', value: 'OP' },
+          { label: 'IT Support', value: 'IT' }
+        ]
+      },
+      {
+        text: 'Identity type',
+        key: 'idType',
+        type: 'multi-select',
+        width: '6em',
+        items: [
+          { label: 'ID Card', value: 'ID' },
+          { label: 'Passport', value: 'PASSPORT' }
+        ]
+      },
+      {
+        text: 'Identity number',
+        key: 'idNumber',
+        type: 'input',
+        width: '9em',
+        props: {
+          maxlength: 18
+        }
+      },
+      {
+        text: 'Fee',
+        key: 'fee',
+        align: 'right',
+        type: 'input',
+        width: '5em',
+        props: {
+          maxlength: 8
+        },
+        params: {
+          validator: str => {
+            if (!str) return;
+            const num = +str;
+            if (Number.isNaN(num)) return 'Please enter a number';
+          },
+          formatter: str => {
+            const num = +str;
+            return num.toFixed(2);
+          }
+        }
+      },
+      {
+        text: 'Total Fee(+10)',
+        key: 'totalFee',
+        align: 'right',
+        type: 'input',
+        width: '9em',
+        props: {
+          maxlength: 8
+        },
+        params: {
+          validator: str => {
+            if (!str) return;
+            const num = +str;
+            if (Number.isNaN(num)) return 'Please enter a number';
+          },
+          formatter: str => {
+            const num = +str;
+            return num.toFixed(2);
+          },
+          computed: (row, column) => {
+            const num = +row.fee || 0;
+            return (num + 10).toFixed(2);
+          }
+        }
+      },
+      {
+        text: 'Pictures',
+        key: 'pics',
+        type: 'image',
+        width: '8.5em',
+        props: {
+          max: 3, // means can upload 3 pics at most
+          uploadApi: 'http://192.168.105.11:28080/api/file/common/upload'
+        }
+      },
+      {
+        text: 'Update Time',
+        key: 'updateTime',
+        type: 'date',
+        width: '8em'
+      }
+    ],
+    rows: [
+      {
+        fullName: 'Tony Joe',
+        dept: 'OP',
+        idType: 'ID',
+        idNumber: '12341122234',
+        fee: 33,
+        pics: [
+          'https://github.blog/wp-content/uploads/2019/03/product-social.png?fit=1201%2C630',
+          '//fpoimg.com/400x400?text=Preview&bg_color=000000',
+          '//fpoimg.com/400x400?text=Preview&bg_color=ffeeee'
+        ],
+        updateTime: '2020-02-01'
+      },
+      {
+        fullName: 'Mary Lee',
+        dept: 'IT',
+        idType: 'ID',
+        idNumber: '6515151374',
+        fee: 25,
+        pics: [
+          '//fpoimg.com/400x400?text=Preview&bg_color=eeffee'
+        ],
+        updateTime: '2020-02-02'
+      }
+    ]
+  }
+}
+```
 
-## Consuming components
+If you want to use it in pure javascript, you can refer the [demo page](https://spread.vercel.app).
 
-Your package.json has a `"svelte"` field pointing to `src/index.js`, which allows Svelte apps to import the source code directly, if they are using a bundler plugin like [rollup-plugin-svelte](https://github.com/sveltejs/rollup-plugin-svelte) or [svelte-loader](https://github.com/sveltejs/svelte-loader) (where [`resolve.mainFields`](https://webpack.js.org/configuration/resolve/#resolve-mainfields) in your webpack config includes `"svelte"`). **This is recommended.**
+## FEATURES
+- cell type: input, select, multi-select, image, date, time (depends on columns array)
+- when the row data changed, it will automaticly emit a "change" event, so you can handle the newest row data
+- validator / formatter / computed functions can be added in column.params object
+- log at most 20 change history in memory, so you can press ctrl+Z/Y to UNDO/REDO
+- right clicking the row head can call the context menu which can insert/delete the row
+- upload images and preview images
+- auto switch languages(CN or EN) depends on your `<html lang="___">`
+- pasted letters by ctrl+V will fill current highlighted input cell
 
-For everyone else, `npm run build` will bundle your component's source code into a plain JavaScript module (`dist/index.mjs`) and a UMD script (`dist/index.js`). This will happen automatically when you publish your component to npm, courtesy of the `prepublishOnly` hook in package.json.
+## TODO
+- [ ] column actions such as insert/delete column
+- [ ] ...

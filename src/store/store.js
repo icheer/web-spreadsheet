@@ -346,7 +346,7 @@ export async function redoHistory() {
 // 向组件外层传递行数据
 function emitEvent(nowData) {
   // 1. Create the custom event.
-  const event = new CustomEvent('changed', {
+  const event = new CustomEvent('change', {
     detail: nowData,
     bubbles: true,
     cancelable: true,

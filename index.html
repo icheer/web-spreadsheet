@@ -79,11 +79,14 @@
         padding: 0;
         margin: 0;
         background-color: #fefbec;
-        overflow: hidden;
+        overflow-x: auto;
+        overflow-y: hidden;
       }
       h1 {
-        font-size: 30px;
+        font-size: 26px;
         line-height: 50px;
+        height: 50px;
+        overflow: hidden;
         margin: 0;
         padding: 5px 0;
         color: #333;
@@ -92,8 +95,8 @@
       h1 a {
         position: absolute;
         right: 20px;
-        top: 0;
-        font-size: 22px;
+        top: 5px;
+        font-size: 16px;
       }
       .card {
         position: relative;
@@ -323,9 +326,8 @@ window.onload = function () {
   var comp = document.querySelector('spread-sheet');
   comp.columns = columns;
   comp.data = data;
-  window.addEventListener('changed', e => {
+  window.addEventListener('change', e => {
     console.log(e.detail);
-    // console.log(e.detail[0].totalFee);
   });
 };
 </script>
