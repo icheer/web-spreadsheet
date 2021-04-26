@@ -32,7 +32,7 @@ svelte:options(immutable tag="sheet-cell")
           span.value {getLabelFromDict(value, selectItems)}
           +else
             select.single(bind:this="{selectDom}" bind:value="{valueInner}" disabled="{disabled}" on:blur="{rewriteValue}")
-              option(value="" style="display: none;") 请选择
+              option(value="" style="display: none;") {isCn ? '请选择' : 'Select...'}
               +each("selectItems as option")
                 option(value="{option.value}") {option.label}
       +elseif("type === 'select-multi'")
@@ -40,7 +40,7 @@ svelte:options(immutable tag="sheet-cell")
           span.value {getLabelFromDict(value, selectItems)}
           +else
             select.multi(bind:this="{selectDom}" bind:value="{valueInner}" multiple disabled="{disabled}" on:blur="{rewriteValue}")
-              option(value="" style="display: none;") 请选择
+              option(value="" style="display: none;") {isCn ? '请选择' : 'Select...'}
               +each("selectItems as option")
                 option(value="{option.value}" style="height: 25px; background: #fff") {option.label}
       +elseif("type === 'image'")
@@ -48,10 +48,10 @@ svelte:options(immutable tag="sheet-cell")
           +each("value as imgUrl, imgIndex (imgIndex)")
             span.img-wrap(on:contextmenu!="{e => e.preventDefault()}")
               img.img(src="{imgUrl}" alt="" on:click!="{() => $previewImageUrl=imgUrl}")
-              span.img-remove(title="删除" on:click="{imageRemoveHandler(imgIndex)}") ×
+              span.img-remove(title="{isCn ? '删除' : 'remove'}" on:click="{imageRemoveHandler(imgIndex)}") ×
         +if("props.uploadApi")
           input.file-uploader(type="file" accept="{uploadAccept}" bind:this="{fileDom}" disabled="{disabled}" on:change="{uploadFileHandler}")
-          span.file-uploader-label(title="上传" class="{!canUploadMore || isUploading ? 'disabled' : ''}" on:click="{uploadClickHandler}")
+          span.file-uploader-label(title="{isCn ? '上传' : 'upload'}" class="{!canUploadMore || isUploading ? 'disabled' : ''}" on:click="{uploadClickHandler}")
       +else
         span.value {value}
 </template>
@@ -71,7 +71,7 @@ svelte:options(immutable tag="sheet-cell")
     focusTextarea,
     previewImageUrl
   } from '@/store/store';
-  import { getLabelFromDict, genRandId } from '@/helper/func';
+  import { getLabelFromDict, genRandId, checkIfCn } from '@/helper/func';
   export let row = {};
   export let column = {};
   export let id = '';
@@ -107,6 +107,7 @@ svelte:options(immutable tag="sheet-cell")
   $: colIndex = +id.split('.')[1];
   $: uploadAccept = props.accept || 'image/*';
   $: canUploadMore = (props.max || 100) > (value || []).length;
+  $: isCn = checkIfCn();
 
   // 如果当前单元格已不是激活状态,取消聚焦状态(隐藏内部的input,select元素,只显示文本)
   // 如果当前单元格时激活状态,将录入内容方法放入row对象

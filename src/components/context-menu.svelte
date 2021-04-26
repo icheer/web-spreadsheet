@@ -14,6 +14,7 @@ svelte:options(tag="context-menu")
 </template>
 
 <script>
+  import { checkIfCn } from '@/helper/func';
   import { contextMenuConfig, closeContextMenu, deleteRow, emptyRow, insertRow, maxRowIndex } from '@/store/store';
   $: config = $contextMenuConfig;
   $: show = config.show || false;
@@ -23,8 +24,7 @@ svelte:options(tag="context-menu")
   $: rowNum = config.rowIndex === undefined ? undefined : config.rowIndex + 1;
   $: style = `top: ${y}px; left: ${x}px;`;
   $: canDeleteRow = $maxRowIndex > 0;
-  $: lang = document.querySelector('html').getAttribute('lang') || '';
-  $: isCn = /zh-/i.test(lang);
+  $: isCn = checkIfCn();
 
   // 显示菜单
   function showMenu() {

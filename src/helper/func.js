@@ -48,3 +48,9 @@ export function simulateMouseDown(element) {
     element.fireEvent('onmousedown');
   }
 }
+
+// 判断是否中文页面
+export function checkIfCn() {
+  const lang = document.querySelector('html').getAttribute('lang') || '';
+  return /zh-/i.test(lang);
+}
