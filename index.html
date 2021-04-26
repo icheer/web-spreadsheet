@@ -213,7 +213,7 @@
       </div>
     </div>
 <script class="real-code">
-  var columns = [
+  let columns = [
     {
       text: '出行人员姓名',
       key: 'name',
@@ -223,8 +223,8 @@
         maxlength: 10
       },
       params: {
-        validator: function(value, row) {
-          var name = (value || '').trim();
+        validator: (value, row) => {
+          const name = (value || '').trim();
           if (!name) return '请输入姓名';
           if (name.length > 10) return '姓名长度应小于等于10';
         }
@@ -269,13 +269,13 @@
         maxlength: 6
       },
       params: {
-        validator: function(str) {
+        validator: str => {
           if (!str) return;
-          var num = +str;
+          const num = +str;
           if (Number.isNaN(num)) return '请输入数字';
         },
-        formatter: function(str) {
-          var num = +str;
+        formatter: str => {
+          const num = +str;
           return num.toFixed(2);
         }
       }
@@ -290,18 +290,18 @@
         maxlength: 6
       },
       params: {
-        validator: function(str) {
+        validator: str => {
           if (!str) return;
-          var num = +str;
+          const num = +str;
           if (Number.isNaN(num)) return '请输入数字';
         },
-        formatter: function(str) {
-          var num = +str;
+        formatter: str => {
+          const num = +str;
           return num.toFixed(2);
         },
-        computed: function(row, column) {
-          var num = +row.fee || 0;
-          var imgLength = (row.pics || []).length;
+        computed: (row, column) => {
+          const num = +row.fee || 0;
+          const imgLength = (row.pics || []).length;
           return (num + imgLength).toFixed(2);
         }
       }
@@ -323,7 +323,7 @@
       width: '8em'
     }
   ];
-  var data = [
+  let data = [
     {
       name: '张三',
       dept: 'OP',
@@ -369,13 +369,13 @@
     }
   ];
   while (data.length < 30) {
-    data = data.concat(data, JSON.parse(JSON.stringify(data))); // copy some extra rows
+    data.push(...JSON.parse(JSON.stringify(data))); // copy some rows
   }
   window.onload = function () {
-    var comp = document.querySelector('spread-sheet');
+    let comp = document.querySelector('spread-sheet');
     comp.columns = columns;
     comp.data = data;
-    window.addEventListener('change', function(e) {
+    window.addEventListener('change', e => {
       console.log(e.detail);
     });
   };
