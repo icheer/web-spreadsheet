@@ -33,7 +33,7 @@
     "dist"
   ],
   "description": "A simple excel-like spreadsheet web component.",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "author": "icheer@live.com",
   "license": "ISC"
 }
