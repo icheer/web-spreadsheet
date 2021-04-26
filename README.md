@@ -194,6 +194,7 @@ If you want to use it in pure javascript, you can refer the [demo page](https://
 - right clicking the row head can call the context menu which can insert/delete the row
 - upload images and preview images
 - auto switch languages(CN or EN) depends on your `<html lang="___">`
+- keypress behavior like Excel (arrows, escape, tab, delete, backspace etc)
 - pasted letters by ctrl+V will fill current highlighted input cell
 - for those non-modern browsers which don't support shadowDOM or customElement, you can use polyfill to let them support: just add a `<script src="https://cdn.jsdelivr.net/npm/@webcomponents/webcomponentsjs@2.5.0/webcomponents-bundle.min.js"></script>` in `<head>`
 
