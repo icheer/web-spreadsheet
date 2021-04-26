@@ -2,7 +2,7 @@
   "name": "web-spreadsheet",
   "svelte": "src/index.js",
   "main": "lib/index.js",
-  "module": "dist/index.mjs",
+  "module": "lib/index.mjs",
   "unpkg": "lib/index.js",
   "jsdelivr": "lib/index.js",
   "scripts": {
@@ -37,7 +37,7 @@
     "lib"
   ],
   "description": "A simple Excel-like spreadsheet web component.",
-  "version": "1.0.10",
+  "version": "1.0.12",
   "author": "icheer@live.com",
   "license": "ISC"
 }
