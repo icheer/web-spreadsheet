@@ -26,14 +26,18 @@
     "url": "https://github.com/icheer/web-spreadsheet.git"
   },
   "keywords": [
-    "svelte"
+    "svelte",
+    "web",
+    "component",
+    "excel",
+    "spreadsheet"
   ],
   "files": [
     "src",
-    "dist"
+    "lib"
   ],
   "description": "A simple Excel-like spreadsheet web component.",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "author": "icheer@live.com",
   "license": "ISC"
 }
