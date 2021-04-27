@@ -193,6 +193,7 @@ If you want to use it in pure javascript, you can refer the [demo page](https://
 - log at most 20 change history in memory, so you can press ctrl+Z/Y to UNDO/REDO
 - right clicking the row head can call the context menu which can insert/delete the row
 - upload images and preview images
+- support sort by column
 - auto switch languages(CN or EN) depends on your `<html lang="___">`
 - keypress behavior like Excel (arrows, escape, tab, delete, backspace etc)
 - pasted letters by ctrl+V will fill current highlighted input cell

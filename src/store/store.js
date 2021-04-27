@@ -7,6 +7,7 @@ export const rows = writable([]);
 
 export const curRowIndex = writable(-1);
 export const curColIndex = writable(-1);
+export const sortBy = writable(['_index', true]);
 export const maxRowIndex = writable(0);
 export const maxColIndex = writable(0);
 export const contextMenuConfig = writable({});
@@ -31,12 +32,11 @@ export function keepTextareaDom(dom) {
 }
 
 // 初始化行列数据
-export function initRowsAndCols(rowsData, colsData, key) {
+export function initRowsAndCols(rowsData, colsData) {
   cols.set(colsData);
-  rowsData.forEach(r => {
-    if (key === '_id') {
-      r._id = genRandId();
-    }
+  rowsData.forEach((r, rIndex) => {
+    r._id = genRandId();
+    r._index = rIndex;
     r._errorMsg = {};
   });
   rows.set(rowsData);
@@ -212,8 +212,11 @@ export function emptyRow(rowIndex) {
 export function insertRow(rowIndex) {
   rows.update(data => {
     let row = data[rowIndex];
+    const { _index } = row;
     row = resetObject(row);
     row._id = genRandId();
+    row._index = +((_index - 0.01).toFixed(2));
+    row._errorMsg = {};
     data.splice(rowIndex, 0, row);
     return data;
   });
@@ -237,7 +240,7 @@ export function resetObject(data) {
       data[key] = '';
     }
   }
-  return JSON.parse(JSON.stringify(data));
+  return copy(data);
 }
 
 // 行号/列号右击时,显示右键菜单
@@ -262,6 +265,63 @@ export function closeContextMenu() {
   contextMenuConfig.set({});
 }
 
+// 切换列排序
+export async function toggleColumnSort(col) {
+  const sort = get(sortBy);
+  let [key, asc] = sort;
+  if (key === col.key) {
+    if (asc) {
+      sortBy.set([col.key, false]);
+    } else {
+      sortBy.set(['_index', true]);
+    }
+  } else {
+    sortBy.set([col.key, true]);
+  }
+  let list = get(rows);
+  list = list.sort((i, j) => {
+    return i._index - j._index;
+  });
+  [key, asc] = get(sortBy);
+  if (key !== 'index') {
+    const treatAsArr = list.every(i => {
+      return Array.isArray(i[key]);
+    });
+    const treatAsStr = list.some(i => {
+      const num = +i[key];
+      return Number.isNaN(num) || !Number.isFinite(num);
+    });
+    list = list.sort((i, j) => {
+      const prev = i[key];
+      const next = j[key];
+      if (treatAsArr) {
+        if (asc) {
+          return prev.length - next.length;
+        } else {
+          return next.length - prev.length;
+        }
+      } else if (treatAsStr) {
+        if (asc) {
+          return (prev || '').localeCompare(next || '');
+        } else {
+          return (next || '').localeCompare(prev || '');
+        }
+      } else {
+        if (asc) {
+          return prev - next;
+        } else {
+          return next - prev;
+        }
+      }
+    });
+  }
+  preventPushHistory = true;
+  await tick();
+  rows.set(list);
+  await tick();
+  preventPushHistory = false;
+}
+
 // 保存历史记录并向外层发射事件
 export function pushHistoryAndEmitEvent() {
   if (preventPushHistory) return;
@@ -270,7 +330,7 @@ export function pushHistoryAndEmitEvent() {
     emitEvent(...args);
   };
   const list = get(history);
-  const nowData = JSON.parse(JSON.stringify(get(rows)));
+  const nowData = copy(get(rows));
   if (!list.length) {
     proceed(nowData, list, -1);
     return;
@@ -285,10 +345,12 @@ export function pushHistoryAndEmitEvent() {
 function pushHistory(nowData, list, currentIndex) {
   if (!nowData || !nowData.length) return;
   const [rowIndex, colIndex] = getCurrentRowColIndex();
+  const sort = get(sortBy);
   const obj = {
     data: nowData,
     rowIndex,
     colIndex,
+    sort,
     current: true
   };
   if (list[currentIndex]) list[currentIndex].current = false;
@@ -306,11 +368,11 @@ export async function undoHistory() {
   list[currentIndex--].current = false;
   list[currentIndex].current = true;
   list = [...list];
-  const { data, rowIndex, colIndex } = list[currentIndex];
+  const { data, rowIndex, colIndex, sort } = list[currentIndex];
   curRowIndex.set(rowIndex);
   curColIndex.set(colIndex);
+  sortBy.set(sort);
   preventPushHistory = true;
-  rows.set([]);
   await tick();
   rows.set(copy(data));
   await tick();
@@ -325,15 +387,14 @@ export async function redoHistory() {
   let list = get(history);
   let currentIndex = list.findIndex(i => i.current);
   if (currentIndex === -1 || currentIndex >= list.length - 1) return false;
-  preventPushHistory = true;
   list[currentIndex++].current = false;
   list[currentIndex].current = true;
   list = [...list];
-  const { data, rowIndex, colIndex } = list[currentIndex];
+  const { data, rowIndex, colIndex, sort } = list[currentIndex];
   curRowIndex.set(rowIndex);
   curColIndex.set(colIndex);
+  sortBy.set(sort);
   preventPushHistory = true;
-  rows.set([]);
   await tick();
   rows.set(copy(data));
   await tick();
@@ -345,9 +406,17 @@ export async function redoHistory() {
 
 // 向组件外层传递行数据
 function emitEvent(nowData) {
+  let data = copy(nowData);
+  let keysIgnored = get(cols).filter(c => c.params && c.params.computed).map(c => c.key);
+  keysIgnored = ['_id', '_index', ...keysIgnored];
+  data.forEach(r => {
+    keysIgnored.forEach(k => {
+      delete r[k];
+    });
+  });
   // 1. Create the custom event.
   const event = new CustomEvent('change', {
-    detail: nowData,
+    detail: data,
     bubbles: true,
     cancelable: true,
     composed: true // makes the event jump shadow DOM boundary

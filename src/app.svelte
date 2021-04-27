@@ -19,15 +19,19 @@
           +if("showrowindex")
             th.row-head(on:contextmenu!="{e => closeContextMenu() || e.preventDefault()}") #
           +each("$cols as col, colIndex (colIndex)")
-            th(class:highlight="{colIndex === $curColIndex}" on:contextmenu!="{e => closeContextMenu() || e.preventDefault()}") {col.text}
-      tbody
-        +each("$rows as row, rowIndex (row[key])")
-          tr
-            +if("showrowindex")
-              td.row-head(class:highlight="{rowIndex === $curRowIndex}" on:contextmenu!="{e => headRightClickHandler(e, rowIndex)}") {rowIndex + 1}
-            +each("$cols as col, colIndex (colIndex)")
-              td
-                sheet-cell(row="{row}" column="{col}" id="{rowIndex}.{colIndex}")
+            th.col-head(class:highlight="{colIndex === $curColIndex}" on:contextmenu!="{e => closeContextMenu() || e.preventDefault()}")
+              span {col.text}
+              +if("!(col.params && col.params.computed)")
+                span.icon(class:active="{$sortBy[0] === col.key}" on:click!="{() => toggleColumnSortHandler(col)}") {$sortBy[0] !== col.key ? '↾' : $sortBy[1] ? '↾' : '⇂'}
+      +if("show")
+        tbody
+          +each("$rows as row, rowIndex (row._id)")
+            tr
+              +if("showrowindex")
+                td.row-head(class:highlight="{rowIndex === $curRowIndex}" on:contextmenu!="{e => headRightClickHandler(e, rowIndex)}") {rowIndex + 1}
+              +each("$cols as col, colIndex (colIndex)")
+                td
+                  sheet-cell(row="{row}" column="{col}" id="{rowIndex}.{colIndex}")
 </template>
 
 <script>
@@ -37,6 +41,7 @@
     rows,
     curColIndex,
     curRowIndex,
+    sortBy,
     keepTextareaDom,
     initRowsAndCols,
     keydownHandler,
@@ -44,6 +49,7 @@
     inputHandler,
     showContextMenu,
     closeContextMenu,
+    toggleColumnSort,
     pushHistoryAndEmitEvent
   } from '@/store/store';
   import { dispatchEvent } from '@/helper/func';
@@ -53,15 +59,14 @@
 
   export let columns = [];
   export let data = [];
-  export let key = '_id';
   export let showrowindex = true;
-
+  let show = true;
   let textarea = null;
 
   onMount(() => {
     keepTextareaDom(textarea);
     setTimeout(() => {
-      initRowsAndCols(data, columns, key);
+      initRowsAndCols(data, columns);
     }, 100);
   });
 
@@ -95,6 +100,14 @@
   // 当行数据发生改变时,向外层发射事件,传递最新的行数据
   function emitEventWhenChanged() {
     pushHistoryAndEmitEvent();
+  }
+
+  // 切换排序
+  async function toggleColumnSortHandler(col) {
+    toggleColumnSort(col);
+    show = false;
+    await tick();
+    show = true;
   }
 </script>
 
@@ -150,6 +163,22 @@
           border-top-width: 2px;
           background-color: #f8f8f8;
           color: #555;
+          &:hover .icon {
+            display: block;
+          }
+          .icon {
+            display: none;
+            position: absolute;
+            width: 20px;
+            top: 0;
+            right: 2px;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+            &.active {
+              display: block;
+            }
+          }
         }
       }
     }

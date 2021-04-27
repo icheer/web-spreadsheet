@@ -113,7 +113,9 @@ svelte:options(immutable tag="sheet-cell")
   // 如果当前单元格时激活状态,将录入内容方法放入row对象
   $: {
     if (!isActive) {
-      if (params.computed) value = params.computed(row, column);
+      if (params.computed) {
+        value = params.computed(row, column);
+      }
       isFocused = false;
       valueInner = value;
       valueOld = value;
@@ -173,10 +175,13 @@ svelte:options(immutable tag="sheet-cell")
     value = valueInner || '';
     const key = column.key;
     row[key] = value;
-    const shouldRefreshRow = !!row._errorMsg[key] !== !!message;
-    row._errorMsg[key] = message;
-    row._id = genRandId();
-    row = { ...row };
+    const shouldRefreshRow = valueOld !== value;
+    if (shouldRefreshRow) {
+      row._errorMsg = row._errorMsg || {};
+      row._errorMsg[key] = message;
+      row._id = genRandId();
+      row = { ...row };
+    }
     setTimeout(() => {
       isRewriting = false;
     }, 1);
