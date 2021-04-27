@@ -158,7 +158,7 @@ data() {
       {
         fullName: 'Tony Joe',
         dept: 'OP',
-        idType: 'ID',
+        idType: ['ID', 'PASSPORT'],
         idNumber: '12341122234',
         fee: 33,
         pics: [
@@ -171,7 +171,7 @@ data() {
       {
         fullName: 'Mary Lee',
         dept: 'IT',
-        idType: 'ID',
+        idType: ['ID'],
         idNumber: '6515151374',
         fee: 25,
         pics: [
