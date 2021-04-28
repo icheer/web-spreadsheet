@@ -277,7 +277,7 @@
         },
         formatter: str => {
           const num = +str;
-          return num.toFixed(2);
+          return '￥' + num.toFixed(2);
         }
       }
     },
@@ -298,7 +298,7 @@
         },
         formatter: str => {
           const num = +str;
-          return num.toFixed(2);
+          return '￥' + num.toFixed(2);
         },
         computed: (row, column) => {
           const num = +row.fee || 0;
