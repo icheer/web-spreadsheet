@@ -60,6 +60,7 @@
   export let columns = [];
   export let data = [];
   export let showrowindex = true;
+  export let rowaction = true;
   let show = true;
   let textarea = null;
 
@@ -82,6 +83,7 @@
     colIndex = undefined
   ) {
     e.preventDefault();
+    if (!rowaction) return;
     const { layerX, layerY } = e;
     const config = {
       x: layerX,

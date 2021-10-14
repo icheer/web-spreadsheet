@@ -37,7 +37,7 @@
     "lib"
   ],
   "description": "A simple Excel-like spreadsheet web component.",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "author": "icheer@live.com",
   "license": "ISC"
 }
