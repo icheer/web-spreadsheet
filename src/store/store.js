@@ -118,6 +118,12 @@ export function inputHandler(e) {
   get(textarea).value = '';
 }
 
+// 将高亮单元格移到0,0
+export function goToTopLeft() {
+  updateRowColIndex(0, -1);
+  changeColByOffset(1);
+}
+
 // 获取当前高亮的单元格行列index
 export function getCurrentRowColIndex() {
   return [get(curRowIndex), get(curColIndex)];
@@ -196,6 +202,7 @@ export function deleteRow(rowIndex) {
   data.splice(rowIndex, 1);
   rows.set(data);
   maxRowIndex.update(val => --val);
+  emitCustomizedEvent('delete', rowIndex);
 }
 
 // 清空行
@@ -215,12 +222,14 @@ export function insertRow(rowIndex) {
     const { _index } = row;
     row = resetObject(row);
     row._id = genRandId();
+    row._isNew = true;
     row._index = +((_index - 0.01).toFixed(2));
     row._errorMsg = {};
     data.splice(rowIndex, 0, row);
     return data;
   });
   maxRowIndex.update(val => ++val);
+  emitCustomizedEvent('insert', rowIndex);
 }
 
 // 清空对象(删除掉函数属性)
@@ -414,8 +423,13 @@ function emitEvent(nowData) {
       delete r[k];
     });
   });
+  emitCustomizedEvent('change', data);
+}
+
+// 向组件外层传递自定义事件
+function emitCustomizedEvent(eventName, data) {
   // 1. Create the custom event.
-  const event = new CustomEvent('change', {
+  const event = new CustomEvent(eventName, {
     detail: data,
     bubbles: true,
     cancelable: true,

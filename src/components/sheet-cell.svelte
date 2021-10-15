@@ -8,6 +8,7 @@ svelte:options(immutable tag="sheet-cell")
     class:active="{isActive}"
     class:editting="{isEditting}"
     class:error="{!!getErrorMsg()}"
+    class:new="{row._isNew}"
     title="{getErrorMsg()}"
   )
     +if("type === 'nothing'")
@@ -101,7 +102,7 @@ svelte:options(immutable tag="sheet-cell")
       : column.align === 'center'
       ? 't-center'
       : 't-left';
-  $: disabled = column.disabled || props.disabled || !!params.computed;
+  $: disabled = ((column.disabled || props.disabled) && !row._isNew) || !!params.computed;
   $: selectItems = column.items || props.items || [];
   $: rowIndex = +id.split('.')[0];
   $: colIndex = +id.split('.')[1];
@@ -358,6 +359,9 @@ svelte:options(immutable tag="sheet-cell")
         outline-width: 2px;
       }
     }
+    &.new {
+      background: rgba(255, 255, 0, 0.1);
+    }
     span.value {
       display: block;
       max-width: 100%;
@@ -440,6 +444,7 @@ svelte:options(immutable tag="sheet-cell")
       height: 100%;
       padding: 0;
       font-size: 15px;
+      background-color: transparent;
       &[disabled] {
         background: #fff;
       }

@@ -4,7 +4,8 @@ svelte:options(tag="context-menu")
   .menu-wrap(on:click!="{e => closeMenu(e)}" style="{style}")
     +if("rowNum")
       .line.title { isCn ? `第${rowNum}行` : `Row ${rowNum}` }
-      .line.item(on:click!="{() => insertRow(config.rowIndex)}") { isCn ? `插入行` : `Insert line` }
+      +if("canInsertRow")
+        .line.item(on:click!="{() => insertRow(config.rowIndex)}") { isCn ? `插入行` : `Insert line` }
       +if("0")
         .line.item(on:click!="{() => emptyRow(config.rowIndex)}") { isCn ? `清空行` : `Empty line` }
       +if("canDeleteRow")
@@ -16,6 +17,10 @@ svelte:options(tag="context-menu")
 <script>
   import { checkIfCn } from '@/helper/func';
   import { contextMenuConfig, closeContextMenu, deleteRow, emptyRow, insertRow, maxRowIndex } from '@/store/store';
+
+  export let caninsert;
+  export let candelete;
+
   $: config = $contextMenuConfig;
   $: show = config.show || false;
   $: x = config.x || 0;
@@ -23,7 +28,8 @@ svelte:options(tag="context-menu")
   $: colNum = config.colIndex === undefined ? undefined : config.colIndex + 1;
   $: rowNum = config.rowIndex === undefined ? undefined : config.rowIndex + 1;
   $: style = `top: ${y}px; left: ${x}px;`;
-  $: canDeleteRow = $maxRowIndex > 0;
+  $: canInsertRow = caninsert;
+  $: canDeleteRow = candelete && $maxRowIndex > 0;
   $: isCn = checkIfCn();
 
   // 显示菜单

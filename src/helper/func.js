@@ -8,6 +8,7 @@ export const genRandId = () => {
 
 export const getLabelFromDict = (value, dict) => {
   if (!dict || !dict.length) return '';
+  value = value || '';
   const type = typeof value;
   if (type === 'string') {
     const item = dict.find(i => i.value === value);

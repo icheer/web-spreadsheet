@@ -8,7 +8,7 @@
   .sheet-wrap(on:click="{wrapClickHandler}")
     image-preview
     textarea(type="hidden" bind:this="{textarea}")
-    context-menu
+    context-menu(caninsert="{caninsert}" candelete="{candelete}")
     table
       +if("showrowindex")
         colgroup
@@ -17,11 +17,11 @@
       thead
         tr
           +if("showrowindex")
-            th.row-head(on:contextmenu!="{e => closeContextMenu() || e.preventDefault()}") #
+            th.row-head(on:click="{goToTopLeft}" on:contextmenu!="{e => closeContextMenu() || e.preventDefault()}") #
           +each("$cols as col, colIndex (colIndex)")
             th.col-head(class:highlight="{colIndex === $curColIndex}" on:contextmenu!="{e => closeContextMenu() || e.preventDefault()}")
               span {col.text}
-              +if("!(col.params && col.params.computed)")
+              +if("!(col.params && col.params.computed || col.sortable === false)")
                 span.icon(class:active="{$sortBy[0] === col.key}" on:click!="{() => toggleColumnSortHandler(col)}") {$sortBy[0] !== col.key ? '↾' : $sortBy[1] ? '↾' : '⇂'}
       +if("show")
         tbody
@@ -50,7 +50,8 @@
     showContextMenu,
     closeContextMenu,
     toggleColumnSort,
-    pushHistoryAndEmitEvent
+    pushHistoryAndEmitEvent,
+    goToTopLeft
   } from '@/store/store';
   import { dispatchEvent } from '@/helper/func';
   import '_/sheet-cell.svelte';
@@ -61,6 +62,8 @@
   export let data = [];
   export let showrowindex = true;
   export let rowaction = true;
+  export let caninsert = true;
+  export let candelete = true;
   let show = true;
   let textarea = null;
 
@@ -142,6 +145,7 @@
           background-color: #fff;
           &.row-head {
             width: 35px;
+            max-width: 35px;
             background-color: #f8f8f8;
             color: #555;
             font-size: 13.5px;
@@ -165,8 +169,13 @@
           border-top-width: 2px;
           background-color: #f8f8f8;
           color: #555;
+          font-size: 15px;
           &:hover .icon {
             display: block;
+          }
+          &.col-head {
+            padding: 0 4px;
+            text-align: center;
           }
           .icon {
             display: none;
