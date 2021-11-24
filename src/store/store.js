@@ -347,6 +347,8 @@ export function pushHistoryAndEmitEvent() {
   const currentIndex = list.findIndex(i => i.current);
   const currentHistory = list[currentIndex];
   if (JSON.stringify(nowData) === JSON.stringify(currentHistory.data)) return;
+  if (Math.abs(nowData.length - currentHistory.data.length) > 1) return;
+  if (Object.keys(nowData[0] || {}).sort().join(':') !== Object.keys(currentHistory.data[0] || {}).sort().join(':')) return;
   proceed(nowData, list, currentIndex);
 }
 
